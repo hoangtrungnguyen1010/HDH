@@ -40,7 +40,7 @@
 #define SC_Random 17
 #define SC_ReadChar 18
 #define SC_PrintChar 19
-
+#define SC_ReadString 20
 #ifndef IN_ASM
 
 int Sub (int a, int b);
@@ -182,6 +182,8 @@ int ThreadJoin(ThreadId id);
 void ThreadExit(int ExitCode);	
 
 void PrintNum(int op1);
+
+void ReadString (char buffer[], int length);
 
 #endif /* IN_ASM */
 

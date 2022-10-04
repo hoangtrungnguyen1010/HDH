@@ -34,7 +34,7 @@
 //	or arithmetic exception.
 //
 // 	For system calls, the following is the calling convention:
-//
+//  
 // 	system call code -- r2
 //		arg1 -- r4
 //		arg2 -- r5
@@ -72,6 +72,19 @@ char SysCall_ReadChar()
     return c;
 }
 
+void SysCall_ReadString() {
+    int buff = kernel->machine->ReadRegister(4);
+    int len = kernel->machine->ReadRegister(5);
+
+    for (int i = 0; i < len; i++) {          
+        char c = kernel->synchConsoleIn->GetChar();
+        kernel->machine->ReadMem((int)&c, sizeof(char),(int*)(buff) + i);
+    }
+
+    kernel->machine->WriteRegister(2, buff);
+    increasePC();
+}
+
 void Syscall_PrintChar()
 {
     char n = kernel->machine->ReadRegister(4);
@@ -83,11 +96,12 @@ void Syscall_PrintChar()
 
 void SysCall_PrintNum()
 {
+    //Ý tưởng 
     int n = kernel->machine->ReadRegister(4);
-    /*int: [-2147483648 , 2147483647] --> max length = 11*/
-    const int maxlen = 11;
-    char num_string[maxlen] = {0};
-    int tmp[maxlen] = {0}, i = 0, j = 0;
+    //Khoảng của int [-2147483648 , 2147483647] 
+    const int length = 11;
+    char num_string[length] = {0};
+    int tmp[length] = {0}, i = 0, j = 0;
     bool check = 0;
 
     if (n < 0)
@@ -140,6 +154,10 @@ void ExceptionHandler(ExceptionType which)
 
     switch (which)
     {
+        //Trả quyền điều khiển cho hệ điều hành
+    case NoException:
+        break;
+        // Với những exception khác thông báo lỗi và halt hệ thống
     case PageFaultException:
         DEBUG(dbgSys, "PageFaultException - No valid translation found\n");
         kernel->interrupt->Halt();
@@ -226,6 +244,13 @@ void ExceptionHandler(ExceptionType which)
 
         case SC_Random:
             SysCall_Random();
+            return;
+            ASSERTNOTREACHED();
+            break;
+        case SC_ReadString:
+            SysCall_ReadString();
+            
+
             return;
             ASSERTNOTREACHED();
             break;

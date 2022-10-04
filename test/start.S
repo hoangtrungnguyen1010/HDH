@@ -67,6 +67,16 @@ PrintNum:
 	j 	$31
 	.end PrintNum
 
+	.globl ReadString
+	.ent	ReadString
+
+ReadString:
+	addiu $2,$0,SC_ReadString
+	syscall
+	j 	$31
+	.end ReadString
+
+
 	.globl RandomNum
 	.ent	RandomNum
 
