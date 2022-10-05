@@ -41,6 +41,8 @@
 #define SC_ReadChar 18
 #define SC_PrintChar 19
 #define SC_ReadString 20
+#define SC_PrintString 21
+
 #ifndef IN_ASM
 
 int Sub (int a, int b);
@@ -59,6 +61,7 @@ void PrintChar();
 void Halt();		
 char ReadChar();
 unsigned int RandomNum();
+void PrintString(char*);
 /*
  * Add the two operants and return the result
  */ 
