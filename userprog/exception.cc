@@ -146,6 +146,27 @@ unsigned int SysCall_Random()
     increasePC();
     return num;
 }
+
+void SysCall_PrintString()
+{
+    int i = 0;
+    int oneChar;
+    int virtAddr = kernel->machine->ReadRegister(4);
+
+    while(true)
+    {
+        kernel->machine->ReadMem(virtAddr+i,1,&oneChar);
+        kernel->synchConsoleOut->PutChar((char) oneChar);
+        i++;
+        
+        if( (char)oneChar == '\0'){
+            break;
+        }
+    }
+    
+    increasePC();
+}
+
 void ExceptionHandler(ExceptionType which)
 {
     int type = kernel->machine->ReadRegister(2);
@@ -251,6 +272,12 @@ void ExceptionHandler(ExceptionType which)
             SysCall_ReadString();
             
 
+            return;
+            ASSERTNOTREACHED();
+            break;    
+        
+        case SC_PrintString:
+            SysCall_PrintString();
             return;
             ASSERTNOTREACHED();
             break;
