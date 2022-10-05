@@ -73,15 +73,31 @@ char SysCall_ReadChar()
 }
 
 void SysCall_ReadString() {
-    int buff = kernel->machine->ReadRegister(4);
-    int len = kernel->machine->ReadRegister(5);
+    // virAddr chua dia chi chuoi de luu vao
+    // len la do dai toi da cua chuoi
+    int virtAddr = kernel->machine->ReadRegister(4);
+    int len = kernel->machine->ReadRegister(5), i;
 
-    for (int i = 0; i < len; i++) {          
-        char c = kernel->synchConsoleIn->GetChar();
-        kernel->machine->ReadMem((int)&c, sizeof(char),(int*)(buff) + i);
+    char oneChar;
+
+    for (i = 0; i < len; i++) {          
+        // doc mot phan tu trong synchConsoleIn
+        oneChar = kernel->synchConsoleIn->GetChar();
+
+        // kiem tra nguoi dung nhap het chuoi
+        if( (char)oneChar == '\n') {
+            break;
+        }
+
+        // them phan tu vao chuoi
+        kernel->machine->WriteMem((virtAddr + i), 1 , oneChar);
     }
-
-    kernel->machine->WriteRegister(2, buff);
+    
+    // xoa cac phan tu thua trong synchConsoleIn
+    while(kernel->synchConsoleIn->GetChar() != '\n');
+    
+    // them ky tu ket thuc chuoi
+    kernel->machine->WriteMem(i, 1 , '\0');
     increasePC();
 }
 
@@ -151,14 +167,18 @@ void SysCall_PrintString()
 {
     int i = 0;
     int oneChar;
+    // lay dia chi chuoi
     int virtAddr = kernel->machine->ReadRegister(4);
 
     while(true)
     {
+        // lay mot phan tu trong chuoi
         kernel->machine->ReadMem(virtAddr+i,1,&oneChar);
+        // in phan tu do len synchConsoleOut
         kernel->synchConsoleOut->PutChar((char) oneChar);
         i++;
         
+        // kiem tra ket thuc chuoi
         if( (char)oneChar == '\0'){
             break;
         }
