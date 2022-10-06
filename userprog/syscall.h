@@ -34,14 +34,17 @@
 #define SC_ExecV	13
 #define SC_ThreadExit   14
 #define SC_ThreadJoin   15
-#define SC_PrintNum 16
-#define SC_Add		42
-#define SC_Sub 43
-#define SC_Random 17
+
+#define SC_ReadNum 16
+#define SC_PrintNum 17
 #define SC_ReadChar 18
 #define SC_PrintChar 19
-#define SC_ReadString 20
-#define SC_PrintString 21
+#define SC_Random 20
+#define SC_ReadString 21
+#define SC_PrintString 22
+
+#define SC_Add		42
+#define SC_Sub 43
 
 #ifndef IN_ASM
 
@@ -57,16 +60,26 @@ int Sub (int a, int b);
  */
 
 /* Stop Nachos, and print out performance stats */
-void PrintChar();
-void Halt();		
+
+void Halt();
+
+int ReadNum();
+void PrintNum(int number);
+
 char ReadChar();
+void PrintChar(char character);
+
 unsigned int RandomNum();
-void PrintString(char*);
+
+void ReadString (char buffer[], int length);
+void PrintString (char buffer[]);
+
 /*
  * Add the two operants and return the result
  */ 
 
 int Add(int op1, int op2);
+int Sub (int a, int b);
 
 /* Address space control operations: Exit, Exec, Execv, and Join */
 
@@ -182,13 +195,8 @@ int ThreadJoin(ThreadId id);
 /*
  * Deletes current thread and returns ExitCode to every waiting lokal thread.
  */
-void ThreadExit(int ExitCode);	
-
-void PrintNum(int op1);
-
-void ReadString (char buffer[], int length);
+void ThreadExit(int ExitCode);
 
 #endif /* IN_ASM */
 
 #endif /* SYSCALL_H */
-
