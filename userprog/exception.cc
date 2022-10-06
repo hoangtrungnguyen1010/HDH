@@ -60,52 +60,80 @@ void increasePC(){
     kernel->machine->WriteRegister(NextPCReg, kernel->machine->ReadRegister(PCReg) + 4);
 
 }
-char SysCall_ReadChar()
-{
-    // SynchConsoleInput *console = new SynchConsoleInput(NULL);
-    // char c = console->GetChar();
 
-    char c = kernel->synchConsoleIn->GetChar();
-    kernel->machine->WriteRegister(2, c);
-    
-    increasePC();
-    return c;
-}
+void SysCall_ReadNum(){
+    char c;
 
-void SysCall_ReadString() {
-    // virAddr chua dia chi chuoi de luu vao
-    // len la do dai toi da cua chuoi
-    int virtAddr = kernel->machine->ReadRegister(4);
-    int len = kernel->machine->ReadRegister(5), i;
+    // loai bo ki tu trang o dau
+    do{
+        c = kernel->synchConsoleIn->GetChar();
+    }while(c == ' ' || c == '\n');
 
-    char oneChar;
-
-    for (i = 0; i < len; i++) {          
-        // doc mot phan tu trong synchConsoleIn
-        oneChar = kernel->synchConsoleIn->GetChar();
-
-        // kiem tra nguoi dung nhap het chuoi
-        if( oneChar == '\n') {
-            break;
-        }
-
-        // them phan tu vao chuoi
-        kernel->machine->WriteMem((virtAddr + i), 1 , oneChar);
+    // kiem tra dau cua so
+    bool checkMinus = false;
+    if(c == '+'){
+        c = kernel->synchConsoleIn->GetChar();
+    }
+    else if(c == '-'){
+        c = kernel->synchConsoleIn->GetChar();
+        checkMinus = true;
     }
     
-    // xoa cac phan tu thua trong synchConsoleIn
-    if(oneChar != '\n') while(kernel->synchConsoleIn->GetChar() != '\n');
+    // Khoảng của int [-2147483648 , 2147483647]
     
-    // them ky tu ket thuc chuoi
-    kernel->machine->WriteMem(i, 1 , '\0');
-    increasePC();
-}
+    char stringNum[12] = "2147483648";
+    if(!checkMinus){
+        stringNum[9] = '7';
+    }
 
-void Syscall_PrintChar()
-{
-    char n = kernel->machine->ReadRegister(4);
-    SynchConsoleOutput *console = new SynchConsoleOutput(NULL);
-    console->PutChar(n);
+    // check == 0: trang thai hien tai bang gioi han cua so
+    // check == -1: trang thai hien tai be hon gioi han cua so
+    // check == 1: trang thai hien tai lon hon gioi han cua so
+    // check == 2: khong phai so
+    // check == 3: tran so
+    int check = 0;
+    int i = 0;
+    while(c != ' ' && c != '\n'){
+        if(check < 2){
+            if('0' <= c && c <= '9'){
+                if(stringNum[i] != '\0'){
+
+                    // cap nhat lai trang thai stringNum so voi gioi han so
+                    if(check == 0){
+                        if(stringNum[i] < c){
+                            check = 1;
+                        }
+                        else if(stringNum[i] > c){
+                            check = -1;
+                        }
+                    }
+
+                    // cap nhat lai stringNum
+                    stringNum[i] = c;
+                    i++;
+                }
+                // tran so
+                else check = 3;
+            }
+            // khong phai so
+            else check = 2;
+        }
+        c = kernel->synchConsoleIn->GetChar();
+    }
+    if(check == 1 && stringNum[i] == '\0') check = 3;
+    else if(check < 2) stringNum[i] = '\0';
+
+    if(check >= 2){
+        stringNum[0] = '\0';
+    }
+
+    // ghi ket qua
+    int result = 0;
+    for(i = 0; stringNum[i] != '\0'; i++){
+        result = result * 10 - int(stringNum[i] - '0');
+    }
+    if(!checkMinus) result = -result;
+    kernel->machine->WriteRegister(2, result);
 
     increasePC();
 }
@@ -156,11 +184,67 @@ void SysCall_PrintNum()
     increasePC();
 }
 
+char SysCall_ReadChar()
+{
+    // SynchConsoleInput *console = new SynchConsoleInput(NULL);
+    // char c = console->GetChar();
+
+    char c = kernel->synchConsoleIn->GetChar();
+    kernel->machine->WriteRegister(2, c);
+    
+    increasePC();
+    return c;
+}
+
+void Syscall_PrintChar()
+{
+    char n = kernel->machine->ReadRegister(4);
+    SynchConsoleOutput *console = new SynchConsoleOutput(NULL);
+    console->PutChar(n);
+
+    increasePC();
+}
+
 unsigned int SysCall_Random()
 {
     unsigned int num = RandomNumber();
     increasePC();
     return num;
+}
+
+void SysCall_ReadString() {
+    // virAddr chua dia chi chuoi de luu vao
+    // len la do dai toi da cua chuoi
+    int virtAddr = kernel->machine->ReadRegister(4);
+    int len = kernel->machine->ReadRegister(5), i;
+
+    char oneChar;
+    // xoa cac phan tu xuong dong trong synchConsoleIn truoc khi nhap chuoi
+    do{
+        oneChar = kernel->synchConsoleIn->GetChar();
+     }while(oneChar == '\n');
+
+    for (i = 0; i < len; i++) {
+
+        // them phan tu vao chuoi
+        kernel->machine->WriteMem((virtAddr + i), 1 , oneChar);
+
+        // doc mot phan tu trong synchConsoleIn
+        oneChar = kernel->synchConsoleIn->GetChar();
+
+        // kiem tra nguoi dung nhap het chuoi
+        if( (char)oneChar == '\n') {
+            break;
+        }
+
+    }
+    
+    // xoa cac phan tu thua trong synchConsoleIn
+    if(oneChar != '\n') while(kernel->synchConsoleIn->GetChar() != '\n');
+    
+    // them ky tu ket thuc chuoi
+    kernel->machine->WriteMem(i, 1 , '\0');
+    increasePC();
 }
 
 void SysCall_PrintString()
@@ -265,6 +349,13 @@ void ExceptionHandler(ExceptionType which)
             ASSERTNOTREACHED();
 
             break;
+            
+        case SC_ReadNum:
+            SysCall_ReadNum();
+            return;
+            ASSERTNOTREACHED();
+            break;
+
         case SC_PrintNum:
             SysCall_PrintNum();
             return;
@@ -288,13 +379,12 @@ void ExceptionHandler(ExceptionType which)
             return;
             ASSERTNOTREACHED();
             break;
+
         case SC_ReadString:
             SysCall_ReadString();
-            
-
             return;
             ASSERTNOTREACHED();
-            break;    
+            break;
         
         case SC_PrintString:
             SysCall_PrintString();
