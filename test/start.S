@@ -76,6 +76,15 @@ ReadString:
 	j 	$31
 	.end ReadString
 
+	.globl ReadNum
+	.ent	ReadNum
+
+ReadNum:
+	addiu $2,$0,SC_ReadNum
+	syscall
+	j 	$31
+	.end ReadNum
+
 
 	.globl RandomNum
 	.ent	RandomNum
@@ -88,7 +97,7 @@ RandomNum:
 
 	.globl ReadChar
 	.ent ReadChar
- ReadChar:
+ReadChar:
 	addiu $2,$0,SC_ReadChar
 	syscall
 	j 	$31
@@ -103,9 +112,6 @@ PrintChar:
 	j 	$31
 	.end PrintChar
 
-	.globl Sub
-	.ent Sub
-	
 	.globl PrintString
 	.ent	PrintString
 
@@ -114,6 +120,9 @@ PrintString:
 	syscall
 	j 	$31
 	.end PrintString
+
+	.globl Sub
+	.ent Sub
 Sub:
 	addiu $2,$0,SC_Sub
 	syscall
@@ -247,4 +256,3 @@ ThreadJoin:
 __main:
         j       $31
         .end    __main
-
