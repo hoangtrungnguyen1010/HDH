@@ -85,7 +85,7 @@ void SysCall_ReadString() {
         oneChar = kernel->synchConsoleIn->GetChar();
 
         // kiem tra nguoi dung nhap het chuoi
-        if( (char)oneChar == '\n') {
+        if( oneChar == '\n') {
             break;
         }
 
@@ -94,7 +94,7 @@ void SysCall_ReadString() {
     }
     
     // xoa cac phan tu thua trong synchConsoleIn
-    while(kernel->synchConsoleIn->GetChar() != '\n');
+    if(oneChar != '\n') while(kernel->synchConsoleIn->GetChar() != '\n');
     
     // them ky tu ket thuc chuoi
     kernel->machine->WriteMem(i, 1 , '\0');
