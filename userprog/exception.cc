@@ -243,7 +243,7 @@ void SysCall_ReadString() {
     if(oneChar != '\n') while(kernel->synchConsoleIn->GetChar() != '\n');
     
     // them ky tu ket thuc chuoi
-    kernel->machine->WriteMem(i, 1 , '\0');
+    kernel->machine->WriteMem(virtAddr + i, 1 , '\0');
     increasePC();
 }
 
