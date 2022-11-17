@@ -343,7 +343,7 @@ void SysCall_Write(){
     int result = FileDescriptorTable.Write(buffer, size, id);
     kernel->machine->WriteRegister(2, result);
     
-    delete buffer;
+    delete [] buffer;
     increasePC();
     return;
 }
