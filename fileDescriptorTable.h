@@ -188,6 +188,9 @@ public:
             {
                 return fOpen[id]->Write(buffer, size);
             }
+            else {
+                DEBUG(dbgSys, "\n Can not write at only read file \n");
+            }
         }
         return -1;
     }
