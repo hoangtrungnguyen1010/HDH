@@ -106,6 +106,8 @@ Purpose: Copy buffer from System memory space to User memory space
 */
 int System2User(int virtAddr, int len, char *buffer)
 {
+    if (buffer == NULL)
+        return -1;
     if (len < 0)
         return -1;
     if (len == 0)
