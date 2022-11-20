@@ -83,7 +83,7 @@ public:
             }
         }
 
-        DEBUG(dbgSys, "\n Can not open more file \n");
+        DEBUG(dbgSys, "\n File descriptor table is full \n");
         return -1;
     }
 
@@ -128,8 +128,7 @@ public:
                 }
             }
             if (buffer[i] != '\n')
-                while (kernel->synchConsoleIn->GetChar() != '\n')
-                    ; // xoa cac ki tu con du trong
+                while (kernel->synchConsoleIn->GetChar() != '\n'); // xoa cac ki tu con du trong
             buffer[i] = '\0';
             return i;
         }
