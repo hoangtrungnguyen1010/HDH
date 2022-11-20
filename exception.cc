@@ -85,7 +85,7 @@ char *User2System(int virtAddr, int limit)
     memset(kernelBuf, 0, limit + 1);
 
     // printf("\n Filename u2s:");
-    for (i = 0; i <= limit; i++)
+    for (i = 0; i < limit; i++)
     {
         kernel->machine->ReadMem(virtAddr + i, 1, &oneChar);
         kernelBuf[i] = (char)oneChar;
@@ -93,7 +93,7 @@ char *User2System(int virtAddr, int limit)
         if (oneChar == 0)
             break;
     }
-    kernelBuf[i] = '\0';
+    kernelBuf[limit] = '\0';
     return kernelBuf;
 }
 
